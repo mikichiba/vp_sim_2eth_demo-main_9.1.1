@@ -1,0 +1,18 @@
+###==== BEGIN Header
+
+# Synopsys, Inc. constraint file
+# /home-tahoe-n7/mikichiba/Customers/Roche/vp_sim_2eth_demo-main_9.1.1/src/constraints/synplify_constraints.fdc
+# Written on Thu Jun 29 09:32:49 2023
+# by Synplify Pro (R), S-2021.09X-2 FDC Constraint Editor
+
+# Custom constraint commands may be added outside of the SCOPE tab sections bounded with BEGIN/END.
+# These sections are generated from SCOPE spreadsheet tabs.
+
+###==== END Header
+define_attribute {eth_rstn_fan2[3]} syn_maxfan {16}
+
+
+###==== BEGIN Clocks - (Populated from tab in SCOPE, do not edit)
+
+###==== END Clocks
+

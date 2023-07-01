@@ -1,0 +1,39 @@
+# -------------------------------------------------------------------------
+# ACE placements file
+# This defines the physical placement of instances on the die
+# Primarily the IO locations, however instance locations and placement
+# regions can also be defined here
+# -------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+# Place the NAPs, Ethernet subsystem 1
+# -------------------------------------------------------------------------
+# Lower NAPs to allow TSN signals to connect to edge of fabric
+set_placement -fixed {i:i_nap_eth0.i_ethernet_node.u_nap_ethernet}      {s:x_core.NOC[1][7].logic.noc.nap_m}
+set_placement -fixed {i:i_nap_eth1.i_ethernet_node.u_nap_ethernet}      {s:x_core.NOC[4][7].logic.noc.nap_m}
+
+# Set Register Control block NAP between the Ethernet subsystems
+#set_placement -fixed {i:i_reg_control_block.i_axi_initiator.i_axi_initiator} {s:x_core.NOC[3][7].logic.noc.nap_m}
+
+# -------------------------------------------------------------------------
+# Example of how to fix the location of an MLP and a BRAM
+# -------------------------------------------------------------------------
+# set_placement -fixed {i:<my_hierarchical_path>.i_bram} {s:x_core.BMLP[29][5].logic.bmlp.bram[0]}
+# set_placement -fixed {i:<my_hierarchical_path>.i_mlp}    {s:x_core.BMLP[29][5].logic.bmlp.mlp[0]}
+
+# Set the main reset to be over the clock network
+#set_clock_type -data_center [find eth_rstn -nets -no_prefix]
+
+# ENHANCE - remove to see if still meets timing
+# Create region to fix the reset over clock synchronizer
+# Near to the H1 entry point of the clock network
+#create_region "roc_region" {128 149 138 158}
+#add_region_insts "roc_region" [find i_reset_processor.gb_roc.x_sync_rstn* -insts]
+
+# Region for ts_tx signals
+# Has to be far enough away from edge to lengthen nets to meet hold
+#create_region "region_eth_0_ts_tx" {28 19 46 22} -snap none -type inclusive
+#add_region_insts "region_eth_0_ts_tx" [find *eth0.gb_tx_ts* -insts]
+#create_region "region_eth_1_ts_tx" {106 19 125 22} -snap none -type inclusive
+#add_region_insts "region_eth_1_ts_tx" [find *eth1.gb_tx_ts* -insts]
+

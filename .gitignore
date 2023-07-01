@@ -1,0 +1,8 @@
+src/ace/vp_project.lock
+src/ace/impl_1
+output
+src/rtl/*~
+src/constraints/*~
+*~
+
+

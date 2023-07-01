@@ -1,0 +1,13 @@
+#--  Synopsys, Inc.
+#--  Version S-2021.09X-2
+#--  Project file /home-tahoe-n7/mikichiba/Customers/Roche/vp_sim_eth_demo-main/src/syn/vp_project.prd
+#--  Written on Fri Jun  2 14:12:21 2023
+
+#
+### Watch Implementation type ###
+#
+watch_impl -all
+#
+### Watch Implementation properties ###
+#
+watch_prop -clear

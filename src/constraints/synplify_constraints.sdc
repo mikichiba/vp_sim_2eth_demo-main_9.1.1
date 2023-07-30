@@ -21,13 +21,13 @@ create_clock [get_ports i_reg_clk]    -period 5
 # Set 500MHz target for i_eth_ts_clk
 create_clock [get_ports i_eth_ts_clk] -period 2
 
-# Set i_eth_clk and i_reg_clk as async.
+# Set i_clk and i_eth_clk as async.
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # HOWEVER, must review all paths. Some single bits have synchronization, but some control busses
 # and signals into Snapshot are not being synchronized.  This is not a solution for a final design
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 set_clock_groups -asynchronous -group {i_eth_clk} \
-                               -group {i_reg_clk} 
+                               -group {i_clk} 
 
 # Set 400MHz target for NAP clock
 # set NAP_CLK_PERIOD 2.500

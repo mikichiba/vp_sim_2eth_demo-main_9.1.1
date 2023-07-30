@@ -64,7 +64,7 @@
 # and signals into Snapshot are not being synchronized.  This is not a solution for a final design
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 set_clock_groups -asynchronous -group {i_eth_clk} \
-                               -group {i_reg_clk} 
+                               -group {i_clk} 
 #-------------------------------------------------------------------------
 # Snapshot JTAG clock: 25MHz
 # ------------------------------------------------------------------------

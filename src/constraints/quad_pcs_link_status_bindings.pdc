@@ -1,0 +1,71 @@
+# ------------------------------------------------------------------
+#
+# Copyright (c) 2021 Achronix Semiconductor Corp.
+# All Rights Reserved.
+#
+# This Software constitutes an unpublished work and contains
+# valuable proprietary information and trade secrets belonging
+# to Achronix Semiconductor Corp.
+#
+# Permission is hereby granted to use this Software including
+# without limitation the right to copy, modify, merge or distribute
+# copies of the software subject to the following condition:
+#
+# The above copyright notice and this permission notice shall
+# be included in in all copies of the Software.
+#
+# The Software is provided “as is” without warranty of any kind
+# expressed or implied, including  but not limited to the warranties
+# of merchantability fitness for a particular purpose and non-infringement.
+# In no event shall the copyright holder be liable for any claim,
+# damages, or other liability for any damages or other liability,
+# whether an action of contract, tort or otherwise, arising from, 
+# out of, or in connection with the Software
+#
+# ------------------------------------------------------------------
+# Ethernet bring-up and reference designs
+# Bind DUT ports to Quad PCS link status signals internal to device
+# These bindings will be automatically connected in later versions of ACE
+# ------------------------------------------------------------------
+
+
+# Create a boundary pins for each signal
+for {set eth 0} {$eth < 2} {incr eth} {
+# For both quads
+#    for {set quad 0} {$quad < 2} {incr quad} #need to add open bracket back after uncomment
+# For quad 0
+    for {set quad 0} {$quad < 1} {incr quad} {
+        for {set ch 0} {$ch < 4} {incr ch} {
+            set pin_name [subst ethernet_$eth\_quad$quad\_link_status\[$ch\]]
+            create_boundary_pins p:$pin_name $pin_name\_ipin -data
+        }
+        set pin_name [subst ethernet_$eth\_quad$quad\_link_status_ored]
+        create_boundary_pins p:$pin_name $pin_name\_ipin -data
+    }
+}
+
+# Connect each signal
+set_placement -fixed -batch {p:ethernet_0_quad0_link_status_ored} {d:i_user_02_09_lut_19[21]}
+set_placement -fixed -batch {p:ethernet_0_quad0_link_status[0]} {d:i_user_02_09_lut_13[7]}
+set_placement -fixed -batch {p:ethernet_0_quad0_link_status[1]} {d:i_user_02_09_lut_13[8]}
+set_placement -fixed -batch {p:ethernet_0_quad0_link_status[2]} {d:i_user_02_09_lut_13[10]}
+set_placement -fixed -batch {p:ethernet_0_quad0_link_status[3]} {d:i_user_02_09_lut_13[11]}
+
+set_placement -fixed -batch {p:ethernet_1_quad0_link_status_ored} {d:i_user_05_09_lut_19[21]}
+set_placement -fixed -batch {p:ethernet_1_quad0_link_status[0]} {d:i_user_05_09_lut_13[7]}
+set_placement -fixed -batch {p:ethernet_1_quad0_link_status[1]} {d:i_user_05_09_lut_13[8]}
+set_placement -fixed -batch {p:ethernet_1_quad0_link_status[2]} {d:i_user_05_09_lut_13[10]}
+set_placement -fixed -batch {p:ethernet_1_quad0_link_status[3]} {d:i_user_05_09_lut_13[11]}
+
+#set_placement -fixed -batch {p:ethernet_0_quad1_link_status_ored} {d:i_user_01_09_lut_19[21]}
+#set_placement -fixed -batch {p:ethernet_0_quad1_link_status[0]} {d:i_user_01_09_lut_13[7]}
+#set_placement -fixed -batch {p:ethernet_0_quad1_link_status[1]} {d:i_user_01_09_lut_13[8]}
+#set_placement -fixed -batch {p:ethernet_0_quad1_link_status[2]} {d:i_user_01_09_lut_13[10]}
+#set_placement -fixed -batch {p:ethernet_0_quad1_link_status[3]} {d:i_user_01_09_lut_13[11]}
+#
+#set_placement -fixed -batch {p:ethernet_1_quad1_link_status_ored} {d:i_user_04_09_lut_19[21]}
+#set_placement -fixed -batch {p:ethernet_1_quad1_link_status[0]} {d:i_user_04_09_lut_13[7]}
+#set_placement -fixed -batch {p:ethernet_1_quad1_link_status[1]} {d:i_user_04_09_lut_13[8]}
+#set_placement -fixed -batch {p:ethernet_1_quad1_link_status[2]} {d:i_user_04_09_lut_13[10]}
+#set_placement -fixed -batch {p:ethernet_1_quad1_link_status[3]} {d:i_user_04_09_lut_13[11]}
+

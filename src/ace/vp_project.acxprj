@@ -22,6 +22,7 @@ add_project_constraints -project vp_project "./../ioring/vp_project_ioring_bitst
 add_project_constraints -project vp_project "./../ioring/vp_project_ioring_bitstream1.hex"
 add_project_constraints -project vp_project "./../constraints/ace_constraints.sdc"
 add_project_constraints -project vp_project "./../constraints/ace_placements.pdc"
+add_project_constraints -project vp_project "./../constraints/quad_pcs_link_status_bindings.pdc"
 # IP Settings Files
 add_project_ip -project vp_project {{./../acxip/vp_pll_sw_2.acxip}}
 add_project_ip -project vp_project {{./../acxip/vp_pll_nw_2.acxip}}
@@ -386,6 +387,7 @@ enable_project_constraints -project vp_project -impl impl_1 "./../ioring/vp_proj
 enable_project_constraints -project vp_project -impl impl_1 "./../ioring/vp_project_ioring_bitstream1.hex"
 enable_project_constraints -project vp_project -impl impl_1 "./../constraints/ace_constraints.sdc"
 enable_project_constraints -project vp_project -impl impl_1 "./../constraints/ace_placements.pdc"
+enable_project_constraints -project vp_project -impl impl_1 "./../constraints/quad_pcs_link_status_bindings.pdc"
 
 
 set_active_impl "impl_1" -project "vp_project"

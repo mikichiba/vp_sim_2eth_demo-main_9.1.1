@@ -1,19 +1,24 @@
-#ACE 9.0.1 IP Properties File, generated on:
-#Wed May 03 14:15:31 CDT 2023
+#ACE 9.1 IP Properties File, generated on:
+#Thu Jun 15 10:08:59 PDT 2023
 acxip_version=0
+enable_pcie_0_gen2_deemph=No
+enable_pcie_0_hot_rstn=No
 enable_pcie_0_perstn=No
-enable_pcie_1_perstn=No
+enable_pcie_1_gen2_deemph=Yes
+enable_pcie_1_hot_rstn=No
+enable_pcie_1_perstn=Yes
+enable_pcie_irq_to_avr=Yes
 library=Speedster7t
 name=Device Manager
 nap_column=6
-nap_row=5
+nap_row=6
 output.instance_prefix=
 output.path_relative_to=ACXIP File
 output.pdc_file=./acx_device_manager.pdc
 output.pdc_file_en=Yes
 output.sdc_file=./acx_device_manager.sdc
 output.sdc_file_en=Yes
-output.systemverilog_file=/home/simonlongcroft/projects/Internal/full/silicon/yuma-alpha/demos/pcie_gddr6_ddr4_vp_demo/src/rtl/acx_device_manager.sv
+output.systemverilog_file=../rtl/acx_device_manager.sv
 output.systemverilog_file_en=Yes
 output.verilog_file=./acx_device_manager.v
 output.verilog_file_en=Yes

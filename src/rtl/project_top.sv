@@ -98,6 +98,10 @@ module project_top
     input  wire  [3:0]                  ethernet_0_m0_ffp_tx_ovr,
     input  wire  [3:0]                  ethernet_0_m0_mac_tx_underflow,
 
+    // Quad MAC 0 PCS lock signals
+    input  wire                         ethernet_0_quad0_link_status_ored;
+    input  wire  [3:0]                  ethernet_0_quad0_link_status;
+
     // Ethernet 1
 
     // Ethernet ff divided clocks (unused)
@@ -120,6 +124,10 @@ module project_top
     input  wire  [3:0]                  ethernet_1_m0_ffe_tx_ovr,
     input  wire  [3:0]                  ethernet_1_m0_ffp_tx_ovr,
     input  wire  [3:0]                  ethernet_1_m0_mac_tx_underflow,
+
+    // Quad MAC 0 PCS lock signals
+    input  wire                         ethernet_1_quad0_link_status_ored;
+    input  wire  [3:0]                  ethernet_1_quad0_link_status;
 
     // This must be included in the port-list of any VectorPath project
     `include "vectorpath_rev1_port_list.svh"
@@ -189,7 +197,7 @@ module project_top
     // Once the circuit is running, the various blocks have their individual resets controlled from
     // the reg_control_block
     logic [32 -1:0] reset_pipe = 16'h0;
-    wire  [5:0] proc_rstn /* synthesis syn_keep=1 */;
+    wire  [6:0] proc_rstn /* synthesis syn_keep=1 */;
 
     always @(posedge i_eth_clk)
         reset_pipe <= {reset_pipe[$bits(reset_pipe)-2 : 0], 1'b1};
@@ -198,7 +206,7 @@ module project_top
     // Create a reg clock reset
     reset_processor_v3 #(
         .NUM_INPUT_RESETS       (5),    // Five reset sources
-        .NUM_OUTPUT_RESETS      (6),    // Eight reset outputs used to fanout to different locations on the FPGA die
+        .NUM_OUTPUT_RESETS      (7),    // Eight reset outputs used to fanout to different locations on the FPGA die
         .IN_RST_PIPE_LENGTH     (5),    // Length of input pipelines. Ignored when SYNC_INPUT_RESETS = 0
         .SYNC_INPUT_RESETS      (1),    // Synchronize reset inputs
         .OUT_RST_PIPE_LENGTH    (4),    // Output pipeline length. Ignored when RESET_OVER_CLOCK = 1
@@ -419,6 +427,53 @@ module project_top
         .rx          (iface_ethnet1_rx)
     );
 
+
+   wire                  i_clk_rstn;
+
+    // Create ADM rst, controlled from proc_rstn, synchronized to i_clk.
+    ACX_SYNCHRONIZER x_sync_nap_rstn (.din(1'b1), .dout(i_clk_rstn), .clk(i_clk), .rstn(proc_rstn[6]));
+
+   // signals for shared JTAG bus
+   wire   t_JTAP_BUS     jtap_bus;       // shared JTAG bus
+   wire                  tdo_bus;        // tie to 0 if unused
+// ADM
+    logic [63:0] serdes_status;
+    logic [31:0] adm_status;
+
+    acx_device_manager x_acx_dev_mgr (
+        // JTAG ports
+        .i_jtag_in          (i_jtag_in),
+        .i_tdo_bus          (tdo_bus),
+        .o_jtag_out         (o_jtag_out),
+        .o_jtap_bus         (jtap_bus),
+
+        // PERSTN and Hot Reset ports
+// REVISIT - PCIe core removed
+//        .i_pcie_1_ltssm_state   (pci_express_x16_status_ltssm_state),
+        .i_pcie_1_ltssm_state   (6'b0),
+        .i_pcie_1_perstn        (fpga_rst_l),   // PERST input
+// REVISIT - do not use big hammer for this build
+//        .o_pcie_1_irq_to_avr    (irq_to_avr),
+
+        // User ports
+        .i_clk              (i_clk),    // 100 MHz Clock input for Device Manager block.
+        .i_start            (i_clk_rstn),     // Once asserted, ADM will run to completion.
+        .o_status           (adm_status),   // Progress indication, error status, alarms
+        .o_serdes_status    (serdes_status)
+    );
+
+
+     
+    // Register signals from ADM status in i_clk domain to name specific start points for false path into SS 
+    // which is running at i_eth_clk 
+    logic [63:0] serdes_status_q   /* synthesis syn_preserve=1 */;
+    logic [31:0] adm_status_q      /* synthesis syn_preserve=1 */;
+    always @(posedge i_clk) begin
+      serdes_status_q <= serdes_status;
+      adm_status_q    <= adm_status;
+    end
+
+
     //-----------------------------------------------------------------------------------------------------
     // From here down is the Snapshot debugger
     //-----------------------------------------------------------------------------------------------------
@@ -448,7 +503,7 @@ module project_top
         iface_ethnet1_tx.flags.tx.force_error,
 
         iface_ethnet0_tx.data[64],
-        iface_ethnet0_tx.data[63:0],
+        iface_ethnet0_tx.data[31:0],
         iface_ethnet0_tx.valid,
         iface_ethnet0_tx.sop,
         iface_ethnet0_tx.eop,
@@ -456,8 +511,8 @@ module project_top
         iface_ethnet0_tx.flags.tx.force_error,
 
         rx0data[64],
-        rx0data[63:0],
-        rx0counter,
+        rx0data[31:0],
+//        rx0counter,
 
         iface_ethnet1_rx.valid,
         rx1error,
@@ -485,6 +540,12 @@ module project_top
         iface_ethnet0_rx.flags.rx.length_error,
         iface_ethnet0_rx.flags.rx.error,
 
+        ethernet_1_quad0_link_status,
+        ethernet_1_quad0_link_status_ored,
+        ethernet_0_quad0_link_status,
+        ethernet_0_quad0_link_status_ored,
+        serdes_status_q,
+        adm_status_q,
         proc_rstn[0],
         resetn       
     };
@@ -496,7 +557,7 @@ module project_top
     assign SS_tx_enable     = stimuli[1];
     assign do_reset         = stimuli[0];
 
-    ACX_SNAPSHOT #
+    ACX_SNAPSHOT_JTAP_UNIT #
     (
         .DUT_NAME           ("snapshot_example"),
         .MONITOR_WIDTH      (MONITOR_WIDTH),    // 1..4080
@@ -510,8 +571,10 @@ module project_top
     )
     debugger_ethernet
     (
-      .i_jtag_in        (i_jtag_in),
-      .o_jtag_out       (o_jtag_out),
+      .i_jtap_bus       (jtap_bus),
+      .i_tdo_bus        (1'b0),
+      .o_tdo_bus        (tdo_bus),
+
       .i_user_clk       (i_eth_clk),
       .i_monitor        (monitor),
       .i_trigger        (), 
